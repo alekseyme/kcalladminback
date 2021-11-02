@@ -77,7 +77,7 @@ class ProjectController extends Controller
             $query->where('status', $request->status);
         }
 
-        $project = $query->paginate($per_page ? $per_page : 10);
+        $project = $query->orderBy('id', 'DESC')->paginate($per_page ? $per_page : 10);
 
         return response()->json([
             'paginate' => $project,
@@ -107,7 +107,7 @@ class ProjectController extends Controller
             $query->where('status', $request->status);
         }
 
-        $project = $query->get();
+        $project = $query->orderBy('id', 'DESC')->get();
 
         return response($project, 200);
     }

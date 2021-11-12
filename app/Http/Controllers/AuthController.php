@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 
@@ -20,21 +21,24 @@ class AuthController extends Controller
         }
         
         $token = $user->createToken($user->username.'_token')->plainTextToken;
+
+        $cookie = cookie('stkn', $token, 60*240);
+
         return response()->json([
             'name' => $user->name,
-            'username' => $user->username,
             'isadmin' => $user->isadmin,
-            'token' => $token,
-            'message' => 'Успешный вход'
-        ], 200);
+        ], 200)->withCookie($cookie);
     }
 
     public function logout()
     {
         // auth()->user()->tokens()->delete();
+        $cookie = Cookie::forget('stkn');
+
         auth()->user()->currentAccessToken()->delete();
+
         return response()->json([
             'message' => 'Успешный выход'
-        ], 200);
+        ], 200)->withCookie($cookie);
     }
 }

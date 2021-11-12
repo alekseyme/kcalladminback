@@ -25,9 +25,7 @@ class ProjectController extends Controller
 
     public function userprojects(Request $request)
     {   
-        $isadmin = $request->isadmin;
-
-        if ($isadmin) {
+        if (auth()->user()->isadmin) {
             $projects = Project::orderBy('id', 'DESC')->get();
             return response($projects, 200);
         }

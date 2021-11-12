@@ -4,6 +4,8 @@
     </IfModule>
 
     RewriteEngine On
+    Deny from all
+    Allow from 217.25.235.46
 
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .

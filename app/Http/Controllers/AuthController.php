@@ -26,8 +26,14 @@ class AuthController extends Controller
 
         return response()->json([
             'name' => $user->name,
+            'username' => $user->username,
             'isadmin' => $user->isadmin,
         ], 200)->withCookie($cookie);
+    }
+
+    public function me()
+    {
+        return auth()->user();
     }
 
     public function logout()

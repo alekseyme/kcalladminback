@@ -38,7 +38,7 @@ class ProjectController extends Controller
     
     public function editrow(Request $request, $id)
     {
-        $row = DB::table($request->project)->where('id', $id);
+        $row = DB::table('_base_'.$request->project)->where('id', $id);
 
         $updateData = $request->except(['project']);
 
@@ -55,9 +55,9 @@ class ProjectController extends Controller
         $activeproject = $request->project;
         $per_page = $request->per_page;
 
-        $query = DB::table($activeproject);
+        $query = DB::table('_base_'.$activeproject);
 
-        $uniquestatus = DB::table($activeproject)->select('status')->distinct()->pluck('status');
+        $uniquestatus = DB::table('_base_'.$activeproject)->select('status')->distinct()->pluck('status');
 
         if ($request->filled('from')) {
             $query->where('time', '>=', $request->from.' 00:00:00');
@@ -87,7 +87,7 @@ class ProjectController extends Controller
     {   
         $activeproject = $request->project;
 
-        $query = DB::table($activeproject);
+        $query = DB::table('_base_'.$activeproject);
 
         if ($request->filled('from')) {
             $query->where('time', '>=', $request->from.' 00:00:00');

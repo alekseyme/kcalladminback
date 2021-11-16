@@ -13,7 +13,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/project/search', 'ProjectController@search');
     Route::post('/project/export', 'ProjectController@export');
     Route::put('/project/editrow/{id}', 'ProjectController@editrow');
-    
+
+    Route::post('/me', 'AuthController@me');
     Route::post('/logout', 'AuthController@logout');
 });
 

@@ -14,6 +14,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/project/export', 'ProjectController@export');
     Route::put('/project/editrow/{id}', 'ProjectController@editrow');
 
+    Route::patch('/user/changepwd', 'UserController@changepassword');
     Route::post('/me', 'AuthController@me');
     Route::post('/logout', 'AuthController@logout');
 });

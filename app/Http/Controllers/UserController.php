@@ -101,6 +101,19 @@ class UserController extends Controller
         ]);
     }
 
+    public function changepassword(Request $request)
+    {
+        $user = User::find($request->userid);
+
+        $user->password = Hash::make($request->password);
+
+        $user->update();
+
+        return response()->json([
+            'message' => 'Пароль успешно изменён. При следующем входе в систему, используйте новый пароль',
+        ]);
+    }
+
     /**
      * Remove the specified resource from storage.
      *

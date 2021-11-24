@@ -19,20 +19,20 @@ class ProjectController extends Controller
      */
     public function index()
     {
-        $projects = Project::orderBy('id', 'DESC')->get();
+        $projects = Project::orderBy('name', 'ASC')->get();
         return response($projects, 200);
     }
 
     public function userprojects(Request $request)
     {   
         if (auth()->user()->isadmin) {
-            $projects = Project::orderBy('id', 'DESC')->get();
+            $projects = Project::orderBy('name', 'ASC')->get();
             return response($projects, 200);
         }
 
         $projects = Project::whereHas('users', function ($query) {
             $query->where('user_id', auth()->user()->id);
-        })->orderBy('id', 'DESC')->get();
+        })->orderBy('name', 'ASC')->get();
         return response($projects, 200);
     }
     
@@ -75,11 +75,11 @@ class ProjectController extends Controller
             $query->where('status', $request->status);
         }
 
-        $project = $query->orderBy('id', 'DESC')->paginate($per_page ? $per_page : 10);
+        $project = $query->orderBy('id', 'DESC')->paginate($per_page ? $per_page : 20);
 
         return response()->json([
             'paginate' => $project,
-            'statuses' => $uniquestatus
+            'statuses' => $uniquestatus,
         ]);
     }
 

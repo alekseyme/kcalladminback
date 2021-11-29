@@ -68,7 +68,7 @@ class ProjectController extends Controller
         }
 
         if ($request->filled('phone')) {
-            $query->where('number', $request->phone);
+            $query->where('number', 'LIKE', '%'.$request->phone.'%');
         }
 
         if ($request->filled('status')) {
@@ -98,7 +98,7 @@ class ProjectController extends Controller
         }
 
         if ($request->filled('phone')) {
-            $query->where('number', $request->phone);
+            $query->where('number', 'LIKE', '%'.$request->phone.'%');
         }
 
         if ($request->filled('status')) {

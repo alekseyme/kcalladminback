@@ -105,7 +105,7 @@ class ProjectController extends Controller
             $query->where('status', $request->status);
         }
 
-        $project = $query->orderBy('id', 'DESC')->get();
+        $project = $query->select($request->fields)->orderBy('id', 'DESC')->get();
 
         return response($project, 200);
     }

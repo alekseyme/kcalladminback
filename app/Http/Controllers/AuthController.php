@@ -22,7 +22,7 @@ class AuthController extends Controller
         
         $token = $user->createToken($user->username.'_token')->plainTextToken;
 
-        $cookie = cookie('stkn', $token, 60*240);
+        $cookie = cookie('stkn', $token, 60*800);
 
         return response()->json([
             'name' => $user->name,

@@ -19,7 +19,7 @@ class ProjectController extends Controller
      */
     public function index()
     {
-        $projects = Project::orderBy('name', 'ASC')->get();
+        $projects = Project::with('users')->orderBy('name', 'ASC')->get();
         return response($projects, 200);
     }
 
@@ -30,9 +30,7 @@ class ProjectController extends Controller
             return response($projects, 200);
         }
 
-        $projects = Project::whereHas('users', function ($query) {
-            $query->where('user_id', auth()->user()->id);
-        })->orderBy('name', 'ASC')->get();
+        $projects = auth()->user()->projects()->orderBy('name', 'ASC')->get();
         return response($projects, 200);
     }
     

@@ -11,7 +11,6 @@ class Project extends Model
         'name', 'tablename', 'changes', 'base_header', 'base_row'
     ];
 
-    protected $with = ['users'];
     public function users()
     {
         return $this->belongsToMany(User::class);

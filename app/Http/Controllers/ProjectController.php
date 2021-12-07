@@ -167,7 +167,7 @@ class ProjectController extends Controller
      */
     public function edit($id)
     {
-        $project = Project::find($id);
+        $project = Project::with('users')->find($id);
         return $project;
     }
 

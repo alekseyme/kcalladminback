@@ -17,6 +17,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::patch('/user/changepwd', 'UserController@changepassword');
     Route::post('/me', 'AuthController@me');
     Route::post('/logout', 'AuthController@logout');
+
+    Route::post('/da/{rid}', 'AudioController@da');
+
 });
 
 // Route::middleware('auth:api')->get('/user', function (Request $request) {

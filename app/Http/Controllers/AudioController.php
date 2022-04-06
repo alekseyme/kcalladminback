@@ -13,7 +13,7 @@ class AudioController extends Controller
             $password = "ed2qJac2ca0x";
 
             $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, 'http://94.141.62.51/callcenter/visor/json/GetMedia3?requestId='.$rid.'&start=2021-01-01%2000:00:00');
+            curl_setopt($ch, CURLOPT_URL, 'http://31.210.220.111/callcenter/visor/json/GetMedia3?requestId='.$rid.'&start=2021-01-01%2000:00:00');
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_NTLM);
             curl_setopt($ch, CURLOPT_USERPWD, $username.":".$password);

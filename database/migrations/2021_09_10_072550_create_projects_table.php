@@ -16,10 +16,10 @@ class CreateProjectsTable extends Migration
         Schema::create('projects', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('tablename')->unique();
+            $table->string('tablename');
             $table->smallInteger('changes');
-            $table->string('base_header');
-            $table->string('base_row');
+            $table->text('table_header');
+            $table->text('table_row');
             $table->timestamps();
         });
     }

@@ -15,24 +15,8 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {   
-        if ($request->woa) 
-        {
-            $users = User::orderBy('id', 'DESC')->where('isadmin', 0)->get();
-            return $users;
-        }
-
-        $users = User::orderBy('id', 'DESC')->get();
+        $users = User::orderBy('name', 'ASC')->get();
         return $users;
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
     }
 
     /**
@@ -46,25 +30,20 @@ class UserController extends Controller
         $user = User::create([
             'name' => $request->name,
             'username' => $request->username,
-            'isadmin' => $request->isadmin,
+            'role' => $request->role,
             'password' => Hash::make($request->password),
         ]);
+
+        if($request->input('projects'))
+        {
+            $user->projects()->attach($request->input('projects'));
+        }
+
         return response()->json([
             'status' => 200,
-            'name' => $user->name,
+            'user' => $user,
             'message'=>'Пользователь успешно создан'
         ]);
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
     }
 
     /**
@@ -75,7 +54,7 @@ class UserController extends Controller
      */
     public function edit($id)
     {
-        $user = User::find($id);
+        $user = User::with('projects')->find($id);
         return $user;
     }
 
@@ -92,11 +71,19 @@ class UserController extends Controller
 
         $user->name = $request->input('name');
         $user->username = $request->input('username');
-        $user->isadmin = $request->input('isadmin');
+        $user->role = $request->input('role');
 
         $user->update();
 
+        $user->projects()->detach();
+        if($request->input('projects'))
+        {
+            $user->projects()->attach($request->input('projects'));
+        }
+
         return response()->json([
+            'status' => 200,
+            'user' => $user,
             'message'=>'Пользователь успешно обновлён'
         ]);
     }

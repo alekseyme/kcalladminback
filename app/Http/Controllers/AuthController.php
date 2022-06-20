@@ -17,7 +17,7 @@ class AuthController extends Controller
         if (! $user || ! Hash::check($request->password, $user->password)) {
             return response()->json([
                 'message' => 'Неверный логин или пароль'
-            ], 401);
+            ], 400);
         }
         
         $token = $user->createToken($user->username.'_token')->plainTextToken;
@@ -27,11 +27,11 @@ class AuthController extends Controller
         return response()->json([
             'name' => $user->name,
             'username' => $user->username,
-            'isadmin' => $user->isadmin,
+            'role' => $user->role,
         ], 200)->withCookie($cookie);
     }
 
-    public function me()
+    public function me(Request $request)
     {
         return auth()->user();
     }

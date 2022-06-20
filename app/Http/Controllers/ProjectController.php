@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Project;
+use App\ClientProject;
+use App\OperProject;
 use App\User;
 use DB;
 
@@ -16,13 +18,13 @@ class ProjectController extends Controller
      */
     public function index()
     {
-        $projects = Project::with('users')->orderBy('name', 'ASC')->get();
+        $projects = Project::orderBy('name', 'ASC')->get();
         return response($projects, 200);
     }
 
     public function userprojects(Request $request)
     {   
-        if (auth()->user()->isadmin) {
+        if (auth()->user()->role === 0) {
             $projects = Project::orderBy('name', 'ASC')->get();
             return response($projects, 200);
         }
@@ -114,16 +116,6 @@ class ProjectController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -135,9 +127,32 @@ class ProjectController extends Controller
             'name' => $request->name,
             'tablename' => $request->tablename,
             'changes' => $request->changes,
-            'base_header' => $request->base_header,
-            'base_row' => $request->base_row,
+            'table_header' => $request->table_header,
+            'table_row' => $request->table_row,
+            'client_available' => $request->client_available,
+            'oper_available' => $request->oper_available,
         ]);
+
+        if ($request->oper_available)
+        {
+            $oper_project = OperProject::create([
+                'id' => $project->id,
+                'name' => $request->name,
+                'type' => 0,
+                'scriptlink' => $request->scriptlink,
+            ]);
+        }
+
+        if ($request->client_available)
+        {
+            $client_project = ClientProject::create([
+                'id' => $project->id,
+                'name' => $request->name,
+                'tablename' => $request->tablename,
+                'table_header_client' => $request->table_header_client,
+                'table_row_client' => $request->table_row_client,
+            ]);
+        }
 
         if($request->input('users'))
         {
@@ -146,22 +161,9 @@ class ProjectController extends Controller
 
         return response()->json([
             'status' => 200,
-            'name' => $project->name,
-            'tablename' => $project->tablename,
-            'changes' => $project->changes,
+            'project' => $project,
             'message'=>'Проект успешно создан'
         ]);
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
     }
 
     /**
@@ -173,6 +175,21 @@ class ProjectController extends Controller
     public function edit($id)
     {
         $project = Project::with('users')->find($id);
+        $oa = $project->oper_available;
+        $ca = $project->client_available;
+
+        if ($oa)
+        {
+            $oper_project = OperProject::find($id);
+            $project = collect($project)->merge(collect($oper_project));
+        }
+
+        if ($ca)
+        {
+            $client_project = ClientProject::find($id);
+            $project = collect($project)->merge(collect($client_project));
+        }
+
         return $project;
     }
 
@@ -185,13 +202,19 @@ class ProjectController extends Controller
      */
     public function update(Request $request, $id)
     {
+        $is_available_client = $request->input('client_available');
+        $is_available_oper = $request->input('oper_available');
+        
+        #region admin project update
         $project = Project::find($id);
 
         $project->name = $request->input('name');
         $project->tablename = $request->input('tablename');
         $project->changes = $request->input('changes');
-        $project->base_header = $request->input('base_header');
-        $project->base_row = $request->input('base_row');
+        $project->table_header = $request->input('table_header');
+        $project->table_row = $request->input('table_row');
+        $project->client_available = $request->input('client_available');
+        $project->oper_available = $request->input('oper_available');
 
         $project->update();
 
@@ -200,8 +223,71 @@ class ProjectController extends Controller
         {
             $project->users()->attach($request->input('users'));
         }
+        #endregion admin project update
+
+        #region oper project update
+        if ($is_available_oper) {
+            $oper_project = OperProject::find($id);
+
+            if (!$oper_project) {
+                $oper_project = OperProject::create([
+                    'id' => $project->id,
+                    'name' => $request->name,
+                    'type' => 0,
+                    'scriptlink' => $request->scriptlink,
+                ]);
+            }
+            else {
+                $oper_project->name = $request->input('name');
+                $oper_project->type = 0;
+                $oper_project->scriptlink = $request->input('scriptlink');
+    
+                $oper_project->update();
+            } 
+        }
+        else {
+            $oper_project = ClientProject::find($id);
+            if ($oper_project) {
+                $oper_project->users()->detach();
+                $oper_project->delete();
+            }            
+        }
+        #endregion oper project update
+
+        #region client project update
+        if ($is_available_client) {
+            $client_project = ClientProject::find($id);
+
+            if (!$client_project) {
+                $client_project = ClientProject::create([
+                    'id' => $project->id,
+                    'name' => $request->name,
+                    'tablename' => $request->tablename,
+                    'table_header_client' => $request->table_header_client,
+                    'table_row_client' => $request->table_row_client,
+                ]);
+            }
+            else {
+                $client_project->name = $request->input('name');
+                $client_project->tablename = $request->input('tablename');
+                $client_project->table_header_client = $request->input('table_header_client');
+                $client_project->table_row_client = $request->input('table_row_client');
+    
+                $client_project->update();
+            }           
+        }
+        else {
+            $client_project = ClientProject::find($id);
+            if ($client_project) {
+                $client_project->users()->detach();
+                $client_project->delete();
+            }            
+        }
+        #endregion client project update
 
         return response()->json([
+            'status' => 200,
+            'project' => $project,
             'message'=>'Проект успешно обновлён'
         ]);
     }
@@ -217,6 +303,18 @@ class ProjectController extends Controller
         $project = Project::find($id);
         $project->users()->detach();
         $project->delete();
+
+        if ($project->oper_available) {
+            $oper_project = OperProject::find($id);
+            $oper_project->users()->detach();
+            $oper_project->delete();
+        }
+
+        if ($project->client_available) {
+            $client_project = ClientProject::find($id);
+            $client_project->users()->detach();
+            $client_project->delete();
+        }
 
         return response()->json([
             'message'=>'Проект успешно удалён'
